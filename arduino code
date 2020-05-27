@@ -1,0 +1,183 @@
+/*************************************************** 
+ musical bird house
+ Loek Vellekoop
+ 2020
+ 
+ credits to the adafruit vs1053 library, which made implementing my idea a lot easier.
+ Adafruit VS1053 Codec Breakout
+
+ ****************************************************/
+ 
+int led = 5;        // ledpin
+int but = 4;        // optional button to activate sound
+int ldrPin = A0;
+int threshold = 5;   // determines the sensitivity to change of light (crude movement detector)
+int x  = 0; 
+int a = 0;
+
+// include SPI, MP3 and SD libraries
+#include <SPI.h>
+#include <Adafruit_VS1053.h>
+#include <SD.h>
+
+// define the pins used
+#define CLK 13       // SPI Clock, shared with SD card
+#define MISO 12      // Input data, from VS1053/SD card
+#define MOSI 11      // Output data, to VS1053/SD card
+// Connect CLK, MISO and MOSI to hardware SPI pins. 
+// See http://arduino.cc/en/Reference/SPI "Connections"
+
+
+// These are the pins used for the music maker shield
+#define SHIELD_RESET  8     // VS1053 reset pin (unused!)
+#define SHIELD_CS     6      // VS1053 chip select pin (output)
+#define SHIELD_DCS    7      // VS1053 Data/command select pin (output)
+
+// These are common pins between breakout and shield
+#define CARDCS 9     // Card chip select pin
+// DREQ should be an Int pin, see http://arduino.cc/en/Reference/attachInterrupt
+#define DREQ 2       // VS1053 Data request, ideally an Interrupt pin
+
+Adafruit_VS1053_FilePlayer musicPlayer = 
+  
+  Adafruit_VS1053_FilePlayer(SHIELD_RESET, SHIELD_CS, SHIELD_DCS, DREQ, CARDCS);
+  
+void setup() {
+  randomSeed(analogRead(0));    // makes the random not the same random everytime after a reset. (takes the floating voltage of the anolog pin to set the seed)
+  Serial.begin(9600);           // start serial communication for debugging, remove slashes to enable (disabled it might reduce power consumtion)
+  pinMode(but, INPUT);          // set the buttonpin as a input
+  pinMode(led, OUTPUT);         //
+  
+  if (! musicPlayer.begin()) {  // initialise the music player, wait untill active
+     while (1);
+  } 
+  if (!SD.begin(CARDCS)) {
+    while (1);                  // don't do anything more
+  }
+  // Set volume for left, right channels. lower numbers == louder volume!
+ musicPlayer.setVolume(20,20);
+  // If DREQ is on an interrupt pin (on uno, #2 or #3) we can do background
+  // audio playing
+  musicPlayer.useInterrupt(VS1053_FILEPLAYER_PIN_INT);  // DREQ int
+}
+
+void loop() {
+
+  boolean button = digitalRead(but);
+  if(button || sensor){     // initiate playback when the button is pressed (cord pulled) or a movement is detected. 
+    switch( random(12)){    // choose a random track to play
+      case 0:
+         musicPlayer.playFullFile("TRACK1.MP3");
+         break;
+      case 1:
+         musicPlayer.playFullFile("TRACK2.MP3");
+         break;
+      case 2:
+         musicPlayer.playFullFile("TRACK3.MP3");
+         break;
+      case 3:
+         musicPlayer.playFullFile("TRACK4.MP3");
+         break;
+      case 4:
+         musicPlayer.playFullFile("TRACK5.MP3");
+         break;
+      case 5:
+         musicPlayer.playFullFile("TRACK6.MP3");
+         break;
+      case 6:
+         musicPlayer.playFullFile("TRACK7.MP3");
+         break;
+      case 7:
+         musicPlayer.playFullFile("TRACK8.MP3");
+         break;
+      case 8:
+         musicPlayer.playFullFile("TRACK9.MP3");
+         break;
+      case 9:
+         musicPlayer.playFullFile("TRACK10.MP3");
+         break;
+      case 10:
+         musicPlayer.playFullFile("TRACK11.MP3");
+         break;
+      case 11:
+         musicPlayer.playFullFile("TRACK12.MP3");
+         break;
+    }
+
+    switch( random(19)){
+      case 0:
+         musicPlayer.playFullFile("TRACK20.MP3");
+         break;
+      case 1:
+         musicPlayer.playFullFile("TRACK21.MP3");
+         break;
+      case 2:
+         musicPlayer.playFullFile("TRACK22.MP3");
+         break;
+      case 3:
+         musicPlayer.playFullFile("TRACK23.MP3");
+         break;
+      case 4:
+         musicPlayer.playFullFile("TRACK24.MP3");
+         break;
+      case 5:
+         musicPlayer.playFullFile("TRACK25.MP3");
+         break;
+      case 6:
+         musicPlayer.playFullFile("TRACK26.MP3");
+         break;
+      case 7:
+         musicPlayer.playFullFile("TRACK27.MP3");
+         break;
+      case 8:
+         musicPlayer.playFullFile("TRACK28.MP3");
+         break;
+      case 9:
+         musicPlayer.playFullFile("TRACK29.MP3");
+         break;
+      case 10:
+         musicPlayer.playFullFile("TRACK30.MP3");
+         break;
+      case 11:
+         musicPlayer.playFullFile("TRACK31.MP3");
+         break;
+      case 12:
+         musicPlayer.playFullFile("TRACK32.MP3");
+         break;
+      case 13:
+         musicPlayer.playFullFile("TRACK33.MP3");
+         break;
+      case 14:
+         musicPlayer.playFullFile("TRACK34.MP3");
+         break;
+      case 15:
+         musicPlayer.playFullFile("TRACK35.MP3");
+         break;
+      case 16:
+         musicPlayer.playFullFile("TRACK36.MP3");
+         break;
+      case 17:
+         musicPlayer.playFullFile("TRACK37.MP3");
+         break;
+      case 18:
+         musicPlayer.playFullFile("TRACK38.MP3");
+         break;
+
+
+
+    }
+    
+  }
+  
+
+}
+boolean sensor (){      // detects fast changes in light above a certain threshold, and returns true when such a change is detected. 
+  int oldValue = analogRead(ldrPin);
+  delay(100);
+  if (analogRead(ldrPin) > oldValue + threshold){     //maybe add: or less - threshold
+    return true;
+  }
+  else {
+    return false;
+  }
+}
